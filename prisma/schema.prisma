@@ -1,0 +1,65 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum AssetType {
+  CHOICE
+  // add other betting markets here
+}
+
+enum EventStatus {
+  CLOSED
+  OPEN
+}
+
+enum MarketStatus {
+  OPEN
+  SUSPENDED
+  RESOLVED
+}
+
+model Event {
+  id         String      @id @default(uuid())
+  name       String
+  markets    Market[]
+  status     EventStatus @default(OPEN)
+  created_at DateTime    @default(now())
+  updated_at DateTime?   @updatedAt()
+  deleted_at DateTime?
+}
+
+model Market {
+  id             String       @id @default(uuid())
+  name           String
+  header         String
+  status         MarketStatus @default(OPEN)
+  asset_type     AssetType
+  liquidity_b    Float        @default(10)
+  event          Event?       @relation(fields: [event_id], references: [id])
+  event_id       String?
+  assets_options Asset[]
+  created_at     DateTime     @default(now())
+  updated_at     DateTime?    @updatedAt()
+  deleted_at     DateTime?
+}
+
+model Asset {
+  id            String    @id @default(uuid())
+  name          String
+  display_order Int?      @default(autoincrement())
+  market        Market?   @relation(fields: [market_id], references: [id])
+  market_id     String?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime? @updatedAt()
+  deleted_at    DateTime?
+}
